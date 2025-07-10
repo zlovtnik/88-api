@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: 88-api
+  labels:
+    name: 88-api
+    app: 88-api 

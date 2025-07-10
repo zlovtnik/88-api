@@ -43,7 +43,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) {
     // Check if user is already logged in on app start
-    // Only run on client side to avoid SSR issues
+    // Only run on the client side to avoid SSR issues
     if (typeof window !== 'undefined') {
       this.checkAuthStatus();
     }
@@ -118,7 +118,7 @@ export class AuthService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`
     });
-    
+
     return this.http.get<{ user: User }>(`${this.API_URL}/auth/me`, { headers })
       .pipe(
         tap(response => {
@@ -144,4 +144,4 @@ export class AuthService {
       })
     );
   }
-} 
+}
