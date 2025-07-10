@@ -5,7 +5,7 @@ FROM oven/bun:1 as base
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 
 # Install dependencies
 RUN bun install --frozen-lockfile
@@ -35,6 +35,7 @@ RUN mkdir -p /app/data
 EXPOSE 3000
 
 # Set environment variables
+
 ENV NODE_ENV=production
 ENV PORT=3000
 

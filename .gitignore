@@ -122,3 +122,4 @@ migrations/
 
 # Test coverage
 coverage/
+.fake
