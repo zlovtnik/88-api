@@ -1,0 +1,47 @@
+{
+  "name": "88-api",
+  "version": "1.0.0",
+  "description": "TypeScript Backend API with Bun - Functional Programming Focus",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "db:generate": "drizzle-kit generate:sqlite",
+    "db:migrate": "bun run db:push",
+    "db:push": "drizzle-kit push:sqlite",
+    "db:studio": "drizzle-kit studio",
+    "fmt": "bun fmt",
+    "lint": "bun lint"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "drizzle-orm": "^0.29.3",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.20.9",
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/bcryptjs": "^2.4.6",
+    "bun-types": "latest"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "keywords": [
+    "typescript",
+    "bun",
+    "api",
+    "functional-programming",
+    "sqlite",
+    "drizzle",
+    "jwt"
+  ],
+  "author": "Rafael Cardoso dos Santos",
+  "license": "MIT"
+}
