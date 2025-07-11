@@ -56,7 +56,7 @@ RUN mkdir -p /app/data && \
     chown -R 1001:1001 /app
 
 # Create initialization script
-RUN echo '#!/bin/sh\n\n# Set default environment variables\n: "${DATABASE_URL:=file:/app/data/data.db}"\n: "${PORT:=3000}"\n\n# Create database directory if it doesn\'t exist\nDB_DIR=$(dirname "${DATABASE_URL#file:}")\nmkdir -p "$DB_DIR"\nchown -R 1001:1001 "$DB_DIR"\n\n# Initialize database if it doesn\'t exist\nif [ ! -f "${DATABASE_URL#file:}" ]; then\n  echo "Initializing database at ${DATABASE_URL#file:}"\n  touch "${DATABASE_URL#file:}"\n  chmod 666 "${DATABASE_URL#file:}"\n  \n  echo "Running database migrations..."\n  if ! bun run db:migrate; then\n    echo "Warning: Database migrations failed"\n    # Continue anyway to allow manual intervention\n  fi\nfi\n\necho "Starting application on port $PORT..."\n' > /app/start.sh && \
+RUN echo '#!/bin/sh\n\n# Set default environment variables\n: "${DATABASE_URL:=file:/app/data/data.db}"\n: "${PORT:=3000}"\n\n# Create database directory if it doesn\'t exist\nDB_DIR=$(dirname "${DATABASE_URL#file:}")\nmkdir -p "$DB_DIR"\nchown -R 1001:1001 "$DB_DIR"\n\n# Initialize database if it doesn\'t exist\nif [ ! -f "${DATABASE_URL#file:}" ]; then\n  echo "Initializing database at ${DATABASE_URL#file:}"\n  touch "${DATABASE_URL#file:}"\n  chmod 666 "${DATABASE_URL#file:}"\n  \n  echo "Running database migrations..."\n  if ! bun run db:migrate; then\n    echo "Warning: Database migrations failed"\n    # Continue anyway to allow manual intervention\n  fi\nfi\n\necho "Starting application on port $PORT..."\nexec bun run start\n' > /app/start.sh && \
     chmod +x /app/start.sh
 
 # Run as non-root user (1001 is the default user in oven/bun:1-slim)
