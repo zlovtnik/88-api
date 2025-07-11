@@ -17,6 +17,8 @@ spec:
         app: frontend
         version: v1
     spec:
+      imagePullSecrets:
+      - name: ghcr-secret
       containers:
       - name: frontend
         image: FRONTEND_IMAGE

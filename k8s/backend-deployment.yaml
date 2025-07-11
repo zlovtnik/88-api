@@ -17,6 +17,8 @@ spec:
         app: backend
         version: v1
     spec:
+      imagePullSecrets:
+      - name: ghcr-secret
       containers:
       - name: backend
         image: BACKEND_IMAGE

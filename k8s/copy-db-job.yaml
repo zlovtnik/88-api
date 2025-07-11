@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: copy-db-job
+  namespace: 88-api
+spec:
+  template:
+    spec:
+      containers:
+      - name: copy-db
+        image: alpine:latest
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          echo "Copying database to backend pods..."
+          for pod in $(kubectl get pods -n 88-api -l app=backend -o jsonpath='{.items[*].metadata.name}'); do
+            echo "Copying to pod: $pod"
+            kubectl cp /app/data/data.db $pod:/app/data/data.db -n 88-api
+          done
+          echo "Database copy complete!"
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+        - name: kubeconfig
+          mountPath: /root/.kube
+        workingDir: /app
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: backend-pvc
+      - name: kubeconfig
+        hostPath:
+          path: /root/.kube
+          type: Directory
+      restartPolicy: Never
+  backoffLimit: 3

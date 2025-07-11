@@ -8,8 +8,9 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE: ${{ github.repository }}/backend
-  FRONTEND_IMAGE: ${{ github.repository }}/frontend
+  # Remove .git from the repository name
+  BACKEND_IMAGE: ${{ github.repository_owner }}/88-api/backend
+  FRONTEND_IMAGE: ${{ github.repository_owner }}/88-api/frontend
   KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
 jobs:
