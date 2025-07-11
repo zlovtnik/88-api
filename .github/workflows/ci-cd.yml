@@ -86,11 +86,11 @@ jobs:
           kubectl apply -f k8s/frontend-service.yaml
           kubectl apply -f k8s/ingress.yaml
         env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig.yaml
 
       - name: Wait for deployment
         run: |
           kubectl rollout status deployment/backend -n 88-api --timeout=300s
           kubectl rollout status deployment/frontend -n 88-api --timeout=300s
         env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }} 
+          KUBECONFIG: ${{ github.workspace }}/kubeconfig.yaml 
