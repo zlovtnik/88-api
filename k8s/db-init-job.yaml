@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-init-job
+  namespace: 88-api
+spec:
+  template:
+    spec:
+      containers:
+      - name: db-init
+        image: oven/bun:1
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          echo "Installing dependencies..."
+          bun install
+          
+          echo "Creating database schema..."
+          bun run db:migrate
+          
+          echo "Database initialization complete!"
+        env:
+        - name: DATABASE_URL
+          value: "file:./data.db"
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+        workingDir: /app
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: backend-pvc
+      restartPolicy: Never
+  backoffLimit: 3 

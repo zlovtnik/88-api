@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: drizzle-config
+  namespace: 88-api
+data:
+  drizzle.config.ts: |
+    import { defineConfig } from 'drizzle-kit';
+
+    export default defineConfig({
+      schema: './src/db/schema.ts',
+      out: './migrations',
+      driver: 'better-sqlite',
+      dbCredentials: {
+        url: (process.env.DATABASE_URL || './data.db').replace(/^file:/, ''),
+      },
+      verbose: true,
+      strict: true,
+    }); 
