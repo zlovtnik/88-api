@@ -5,7 +5,8 @@ FROM oven/bun:1 as base
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lock ./
+COPY package.json bun.lock ./ 
+COPY data.db ./data/data.db
 
 # Install dependencies (including devDependencies for migrations)
 RUN bun install --frozen-lockfile

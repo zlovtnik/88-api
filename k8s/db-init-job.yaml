@@ -1,35 +1,21 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: db-init-job
+  name: db-init
   namespace: 88-api
 spec:
   template:
     spec:
       containers:
-      - name: db-init
+      - name: bun
         image: oven/bun:1
-        command: ["/bin/sh"]
-        args:
-        - -c
-        - |
-          echo "Installing dependencies..."
-          bun install
-          
-          echo "Creating database schema..."
-          bun run db:migrate
-          
-          echo "Database initialization complete!"
-        env:
-        - name: DATABASE_URL
-          value: "file:./data.db"
+        command: ["bun", "-e", "import { Database } from 'bun:sqlite'; const db = new Database('/app/data/data.db'); db.run('CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, password TEXT NOT NULL, name TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)'); db.run('CREATE TABLE IF NOT EXISTS items (id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT, price REAL NOT NULL, user_id TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, FOREIGN KEY (user_id) REFERENCES users(id))'); db.run('CREATE TABLE IF NOT EXISTS refresh_tokens (id TEXT PRIMARY KEY, token TEXT NOT NULL UNIQUE, user_id TEXT NOT NULL, expires_at INTEGER NOT NULL, created_at INTEGER NOT NULL, FOREIGN KEY (user_id) REFERENCES users(id))'); console.log('Tables created successfully!');"]
         volumeMounts:
-        - name: data-volume
+        - name: data
           mountPath: /app/data
-        workingDir: /app
+      restartPolicy: Never
       volumes:
-      - name: data-volume
+      - name: data
         persistentVolumeClaim:
           claimName: backend-pvc
-      restartPolicy: Never
-  backoffLimit: 3 
+  backoffLimit: 1
