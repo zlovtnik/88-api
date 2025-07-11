@@ -15,10 +15,7 @@ bun.lockb
 .env.production.local
 
 # Database
-*.db
-*.db-journal
-data.db
-data.db-journal
+
 
 # Build output
 dist/
