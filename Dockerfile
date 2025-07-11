@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json bun.lock ./ 
-COPY data.db ./data/data.db
+COPY data.db ./data.db
 
 # Install dependencies (including devDependencies for migrations)
 RUN bun install --frozen-lockfile
