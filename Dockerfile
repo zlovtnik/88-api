@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy package files
 COPY package.json bun.lock ./
 
-# Install dependencies
+# Install dependencies (including devDependencies for migrations)
 RUN bun install --frozen-lockfile
 
 # Copy source code
@@ -24,18 +24,29 @@ WORKDIR /app
 # Copy built application
 COPY --from=base /app/dist ./dist
 COPY --from=base /app/package.json ./
+COPY --from=base /app/drizzle.config.ts ./
+COPY --from=base /app/src/db ./src/db
 
-# Install only production dependencies
-RUN bun install --frozen-lockfile --production
+# Install dependencies (including drizzle-kit for migrations)
+RUN bun install --frozen-lockfile
 
 # Create data directory for SQLite
 RUN mkdir -p /app/data
+
+# Create initialization script
+RUN echo '#!/bin/sh\n\
+if [ ! -f /app/data/data.db ]; then\n\
+  echo "Initializing database..."\n\
+  bun run db:migrate\n\
+fi\n\
+echo "Starting application..."\n\
+exec bun ./dist/index.js\n\
+' > /app/start.sh && chmod +x /app/start.sh
 
 # Expose port
 EXPOSE 3000
 
 # Set environment variables
-
 ENV NODE_ENV=production
 ENV PORT=3000
 
@@ -43,5 +54,5 @@ ENV PORT=3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD bun run -e "fetch('http://localhost:3000/health').then(r => r.ok ? process.exit(0) : process.exit(1))"
 
-# Start the application
-CMD ["bun", "./dist/index.js"] 
+# Start the application with initialization
+CMD ["/app/start.sh"] 
