@@ -5,13 +5,13 @@
       "name": "88-api",
       "dependencies": {
         "bcryptjs": "^2.4.3",
+        "better-sqlite3": "^12.2.0",
         "drizzle-orm": "^0.29.3",
         "jsonwebtoken": "^9.0.2",
         "zod": "^3.22.4",
       },
       "devDependencies": {
         "@types/bcryptjs": "^2.4.6",
-        "@types/better-sqlite3": "^7.6.8",
         "@types/jsonwebtoken": "^9.0.5",
         "bun-types": "latest",
         "drizzle-kit": "^0.20.9",

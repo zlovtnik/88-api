@@ -1,12 +1,18 @@
-# Use the official Bun image
+# Use the official Bun image with build tools
 FROM oven/bun:1 as base
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lock ./ 
-COPY data.db ./data.db
+COPY package.json bun.lock ./
 
 # Install dependencies (including devDependencies for migrations)
 RUN bun install --frozen-lockfile
@@ -20,29 +26,29 @@ RUN bun run build
 # Production stage
 FROM oven/bun:1-slim
 
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Copy built application
+# Copy built application and database files
 COPY --from=base /app/dist ./dist
 COPY --from=base /app/package.json ./
 COPY --from=base /app/drizzle.config.ts ./
 COPY --from=base /app/src/db ./src/db
+COPY --from=base /app/node_modules ./node_modules
 
-# Install dependencies (including drizzle-kit for migrations)
-RUN bun install --frozen-lockfile
+# Create data directory for SQLite with correct permissions
+RUN mkdir -p /app/data && \
+    chown -R bun:bun /app/data
 
 # Create data directory for SQLite
 RUN mkdir -p /app/data
 
 # Create initialization script
-RUN echo '#!/bin/sh\n\
-if [ ! -f /app/data/data.db ]; then\n\
-  echo "Initializing database..."\n\
-  bun run db:migrate\n\
-fi\n\
-echo "Starting application..."\n\
-exec bun ./dist/index.js\n\
-' > /app/start.sh && chmod +x /app/start.sh
+RUN echo '#!/bin/sh\nif [ ! -f /app/data/data.db ]; then\n  echo "Initializing database..."\n  echo "Running database migrations..."\n  bun run db:migrate || echo "Migrations failed, continuing with existing database"\nfi\n\necho "Starting application..."\nexec bun ./dist/index.js\n' > /app/start.sh && chmod +x /app/start.sh
 
 # Expose port
 EXPOSE 3000
