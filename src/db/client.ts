@@ -1,17 +1,48 @@
 import { drizzle } from 'drizzle-orm/bun-sqlite';
 import { Database } from 'bun:sqlite';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { mkdirSync, existsSync } from 'fs';
 import { config } from '../config';
 import * as schema from './schema';
+
+// Get the directory name in ESM
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Ensure the database directory exists
+ */
+const ensureDbDir = (dbPath: string): string => {
+  const fullPath = dbPath.startsWith('/') 
+    ? dbPath 
+    : join(process.cwd(), dbPath);
+  
+  const dir = dirname(fullPath);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+  return fullPath;
+};
 
 /**
  * Initialize SQLite database connection
  * Pure function that takes database URL as parameter
  */
 export const createDatabase = (databaseUrl: string) => {
-  // Remove 'file:' prefix if present
-  const dbPath = databaseUrl.replace(/^file:/, '');
-  const sqlite = new Database(dbPath);
-  return drizzle(sqlite, { schema });
+  try {
+    // Remove 'file:' prefix if present and ensure directory exists
+    const dbPath = ensureDbDir(databaseUrl.replace(/^file:/, ''));
+    console.log(`Connecting to database at: ${dbPath}`);
+    const sqlite = new Database(dbPath);
+    
+    // Enable foreign key constraints
+    sqlite.exec('PRAGMA foreign_keys = ON');
+    
+    return drizzle(sqlite, { schema });
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+    throw error;
+  }
 };
 
 /**
